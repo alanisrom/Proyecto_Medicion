@@ -28,3 +28,16 @@ Los plebiscitos constitucionales de 2022 y 2023, ambos con voto obligatorio, ofr
 
 <img width="931" height="524" alt="image" src="https://github.com/user-attachments/assets/844bd823-d138-484d-a724-aaa36d39e08f" />
 
+## Plan de Análisis
+
+Se realizarán dos modelos para cada proceso constituyente, usando modelos de regresión logística:
+
+Para el Plebiscito 2022:
+
+logit(Pleb_2022(Y=1))=β0​+β1​(educación)+β2​(sexo)+β3​(edad)+β4​(tendencia)+β5(zona)+β
+
+Para el Plebiscito 2023:
+
+logit(Pleb_2023(Y=1))=β0​+β1​(educación)+β2​(sexo)+β3​(edad)+β4​(tendencia)+β5(zona)+β
+
+Así buscamos saber como el nivel educacional en promedio tiene algún efecto significativo en la posibilidad de que una comuna haya votado "Apruebo" en el 2022 o "A Favor" en el 2023
