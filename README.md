@@ -10,7 +10,7 @@ El objetivo es observar cómo factores socioeducativos influyen en la orientaci�
 
 # Pregunta de investigación
 
-¿Cómo se relaciona el nivel educacional de las comunas en Chile con el resultado positivo de los Plebiscitos de Salida de los procesos constituyentes 2022 y 202?
+¿Cómo se relaciona el nivel educacional de las comunas en Chile con el resultado positivo de los Plebiscitos de Salida de los procesos constituyentes 2022 y 2023?
 
 # Marco Teórico
 El proyecto analiza cómo las variables socioeconómicas, especialmente la educación, influyen en el comportamiento electoral en Chile.
