@@ -84,6 +84,42 @@ write_csv(plebs_final, "data/plebiscitos_limpio.csv")
 # Código para limpiar base 2
 
 ```{r}
+#Se ocupan las mismas librerías
+
+#Subir bases de datos: 
+
+Nivel_educación <- read_xlsx("C:/Users/USER/OneDrive - Universidad Católica de Chile/Documentos/Proyecto_Medicion/P7_Educacion_2.xlsx") 
+
+Sexo_educación <- read_xlsx("C:/Users/USER/OneDrive - Universidad Católica de Chile/Documentos/Proyecto_Medicion/P7_Educacion_4.xlsx")
+
+#Limpiamos las bases, comenzamos con Nivel_educación
+
+Nivel_educación <- clean_names(Nivel_educación) |> 
+  select(codigo_comuna, comuna, poblacion_censada, nunca_asistio, diferencial, parvularia, basica, media, superior, nivel_educativo_no_declarado) |>
+  filter(!is.na(comuna))
+ 
+#Limpiamos base de datos Sexo_educación
+
+Sexo_educación <- clean_names(Sexo_educación) |> 
+  select(codigo_comuna, comuna, sexo, 
+         anos_de_escolaridad_promedio_para_la_poblacion_de_18_anos_o_mas) |>
+  filter(!grepl("Total", sexo, ignore.case = TRUE) & !is.na(comuna))
+  
+#Ahora ocuparemos edad y genero en una nueva base de datos
+
+edad_comuna <- read_xlsx("C:/Users/USER/OneDrive - Universidad Católica de Chile/Documentos/Proyecto_Medicion/D1_Poblacion-censada-por-sexo-y-edad-en-grupos-quinquenales.xlsx", sheet = "4", skip = 3)
+
+#Limpiamos base edad_comuna
+
+edad_comuna |> 
+  count(grupos_de_edad)
+
+edad_comuna <- clean_names(edad_comuna) |> 
+  select(codigo_comuna, comuna, grupos_de_edad, poblacion_censada, hombres, mujeres, razon_hombre_mujer) |>
+  filter(!grepl("País", comuna, ignore.case = TRUE) & !is.na(comuna)) |> 
+  filter(!grupos_de_edad %in% c("0 a 4", "5 a 9", "10 a 14", "15 a 19"))
+
+#Falta agregar porcentaje
 
 ```
 
