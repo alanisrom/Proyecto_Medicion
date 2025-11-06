@@ -148,6 +148,7 @@ edad_comuna <- clean_names(edad_comuna) |>
   ) 
 
 #Ahora hay que colocar cual es el mayor grupo  
+
   edad_comuna <- edad_comuna |>
   group_by(comuna) |>
    filter(!grepl("Total Comuna", grupo_edad_unido, ignore.case = TRUE)) |>
