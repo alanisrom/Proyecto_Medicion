@@ -123,9 +123,21 @@ edad_comuna <- clean_names(edad_comuna) |>
 
 ```
 
-# Código para limpiar base 3
+# Código para limpiar base 3: Tendencia política de la comuna
 
 ```{r}
 
+alcaldes <- read_excel("input/datos_alcalde.xlsx")
+
+alcaldes <- clean_names(alcaldes)
+
+alcaldes <- alcaldes |>
+  filter(cargo == "ALCALDE")
+
+alcaldes <- alcaldes |> 
+  select(comuna,pacto, partido) |> 
+  arrange(comuna)
+
+write_csv(alcaldes, "data/tendencia.csv")
 ```
 
