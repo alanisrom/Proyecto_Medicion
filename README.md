@@ -28,7 +28,3 @@ Los plebiscitos constitucionales de 2022 y 2023, ambos con voto obligatorio, ofr
 
 <img width="931" height="524" alt="image" src="https://github.com/user-attachments/assets/844bd823-d138-484d-a724-aaa36d39e08f" />
 
-
-
-
-El propósito es integrar estas bases para analizar cómo el nivel educacional promedio influye en el comportamiento electoral bajo un contexto de voto obligatorio.
