@@ -14,7 +14,7 @@ Limpiar la base de datos de las elecciones y luego limpiar las bases de datos de
 
 ```
 
-# Código para limpiar base 2
+# Código para limpiar base 2: revisar datos electorales
 
 ```{r}
 
