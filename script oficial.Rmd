@@ -107,19 +107,53 @@ Sexo_educación <- clean_names(Sexo_educación) |>
   
 #Ahora ocuparemos edad y genero en una nueva base de datos
 
-edad_comuna <- read_xlsx("C:/Users/USER/OneDrive - Universidad Católica de Chile/Documentos/Proyecto_Medicion/D1_Poblacion-censada-por-sexo-y-edad-en-grupos-quinquenales.xlsx", sheet = "4", skip = 3)
+edad_comuna <- read_xlsx("C:/Users/USER/OneDrive - Universidad Católica de Chile/Documentos/Proyecto_Medicion/input/D1_Poblacion-censada-por-sexo-y-edad-en-grupos-quinquenales.xlsx", sheet = "4", skip = 3)
 
 #Limpiamos base edad_comuna
-
-edad_comuna |> 
-  count(grupos_de_edad)
 
 edad_comuna <- clean_names(edad_comuna) |> 
   select(codigo_comuna, comuna, grupos_de_edad, poblacion_censada, hombres, mujeres, razon_hombre_mujer) |>
   filter(!grepl("País", comuna, ignore.case = TRUE) & !is.na(comuna)) |> 
   filter(!grupos_de_edad %in% c("0 a 4", "5 a 9", "10 a 14", "15 a 19"))
 
-#Falta agregar porcentaje
+edad_comuna |> 
+  count(grupos_de_edad)
+
+#Falta agregar porcentaje y unir grupos de edad
+
+edad_comuna <- clean_names(edad_comuna) |> 
+  select(codigo_comuna, comuna, grupos_de_edad, poblacion_censada, hombres, mujeres, razon_hombre_mujer) |>
+  filter(!grepl("País", comuna, ignore.case = TRUE) & !is.na(comuna)) |>
+  filter(!grupos_de_edad %in% c("0 a 4", "5 a 9", "10 a 14", "15 a 19")) |>
+  mutate(
+    grupo_edad_unido = case_when(
+      grupo_de_edad %in% c("20 a 24", "25 a 29", "30 a 34") ~ "20 a 34",
+      grupos_de_edad %in% c("35 a 39", "40 a 44", "45 a 49") ~ "35 a 49",
+      grupos_de_edad %in% c("50 a 54", "55 a 59", "60 a 64") ~ "50 a 64",
+      grupos_de_edad %in% c("65 a 69", "70 a 74", "75 a 79") ~ "65 a 79",
+      grupos_de_edad %in% c("80 a 84", "85 a 89", "90 a 94", "95 a 99", "100 y más") ~ "80 y más",
+      TRUE ~ grupos_de_edad
+    )
+  ) |>
+  group_by(codigo_comuna, comuna, grupo_edad_unido) |>
+  summarise(
+    poblacion_censada = sum(poblacion_censada),
+    hombres = sum(hombres),
+    mujeres = sum(mujeres),
+    .groups = "drop"
+  ) |>
+  mutate(
+    porcentaje_hombres = round((hombres / poblacion_censada) * 100, 2),
+    porcentaje_mujeres = round((mujeres / poblacion_censada) * 100, 2)
+  ) 
+
+#Ahora hay que colocar cual es el mayor grupo  
+  edad_comuna <- edad_comuna |>
+  group_by(comuna) |>
+   filter(!grepl("Total Comuna", grupo_edad_unido, ignore.case = TRUE)) |>
+  filter(poblacion_censada == max(poblacion_censada)) |>
+  ungroup()|>
+  select(codigo_comuna, comuna, grupo_edad_unido, poblacion_censada, hombres, mujeres, porcentaje_hombres, porcentaje_mujeres)
 
 ```
 
