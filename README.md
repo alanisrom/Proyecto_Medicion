@@ -38,8 +38,12 @@ Tampoco consideramos en el análisis a la Antártica porque no tenían datos de 
 El trabajo con las bases de datos se nos dio de forma muy fácil, solo que al ser tantas, tuvimos que hacer muchas modificaciones para que estén todas iguales. Por ejemplo, tuvimos que cambiarle el nombre de las comunas a casi todas las bases de datos para que conincidieran. También, hubieron bases de datos donde, al momento de limpiarlas, se unificaron variables.  
 
 ## Resultados
-(insertar los gráficos de la Alanis)
-
+![escolaridad_hombre_apruebo2022](https://github.com/user-attachments/assets/c4a6197f-bfee-424b-8aa7-ffdfa27f5507)
+![escolaridad_mujeres_apruebo2022](https://github.com/user-attachments/assets/6586955a-2392-4835-bbfa-698a74427459)
+![escolaridad_hombre_afavor2023](https://github.com/user-attachments/assets/80cb67a8-757c-471e-b6f5-600ee5c9688d)
+![escolaridad_mujeres_afavor2023](https://github.com/user-attachments/assets/5bf371c6-311d-4e08-b15f-e85b09d7038e)
+![pobreza_apruebo2022](https://github.com/user-attachments/assets/ac80dd18-9254-43b4-b48c-c6ec90eb5a7a)
+![pobreza_afavor2023](https://github.com/user-attachments/assets/89062bd9-5a97-494b-84f7-dad1835b3b01)
 
 Realizamos 2 modelos de regresión:
 
@@ -60,6 +64,7 @@ logit(Pleb_2023(Y=1))=β0​+β1​(escolaridad_mujeres)+β2​(escolaridad_homb
 | **Pobreza (personas)**      | Positivo (muy pequeño)  | No significativo   | **Positivo fuerte**     | ***Muy significativo*** | En 2023: comunas más pobres apoyan más el texto en promedio.                                     |
 | **Edad (promedio / grupo)** | Negativo                | No significativo   | **Positivo**            | **Significativo**       | En 2023: comunas con mayores grupos etarios → más apoyo al texto.                                |
 | **Intercepto**              | Negativo, significativo | —                  | Negativo, significativo | —                       | El voto por aprobar es bajo en promedio, aun controlando por variables.                          |
+
 En resumen: 
 En el Plebiscito de 2022, ninguna variable socioeconómica ni política tiene efectos significativos en la probabilidad de aprobar por comunas. Pero, en 2023 hay variables que s+i influyen en el A Favor, como mayor escolaridad femenina, menor escolaridad masculina, mayor pobreza comunal, mayor edad promedio y la tendencia política (independientes e izquierda) afectan significativamente el resultado. El cambio de signo en las variables muestran un cambio en el comportamiento electoral. 
 
