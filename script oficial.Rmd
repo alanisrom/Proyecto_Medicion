@@ -1,3 +1,9 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
 ## Unir las bases de datos
 
 Limpiar la base de datos de las elecciones y luego limpiar las bases de datos de CASEN para saber bien que variables vamos a usar.
@@ -342,34 +348,462 @@ library(tidyverse)
 library(sf) 
 library(chilemapas)
 library(janitor)
+library(gganimate)
+library(plotly)
+library(ggplot2)
 ```
 
-Nos aseguraremos que la variable comuna esté "match" con chilemapas
+# Unimos bases para tener códigos
 
 ```{r}
-df_final <- df_final |>
-  mutate(comuna = str_to_upper(stringi::stri_trans_general(comuna, "latin-ascii")))
+cut_data <- read_xls("input/CUT_2018_v04.xls") |> 
+  clean_names() |> 
+  select(codigo_comuna_2018, nombre_comuna) |> 
+  rename(comuna = nombre_comuna) |> 
+  mutate(comuna = stri_trans_general(comuna, "Latin-ASCII")) |> 
+  mutate(
+    comuna = case_when(
+      comuna == "Paiguano" ~ "Paihuano",
+      comuna == "Llay-Llay" ~ "Llay Llay",
+      comuna == "Marchigue" ~ "Marchihue",
+      comuna == "Cabo de Hornos" ~ "Cabo de Hornos(Ex-Navarino)",
+      comuna == "San Pedro de La paz" ~ "San Pedro de la paz",
+      comuna == "San Juan de La Costa" ~ "San Juan de la Costa",
+      comuna == "O'higgins" ~ "O'Higgins",
+      comuna == "Treguaco" ~ "Trehuaco",
+      TRUE ~ comuna
+    )
+  )
+  
+df_final <- df_final |> 
+  left_join(cut_data, by = "comuna")
+
+
+summary(df_final)
 ```
 
-De esta forma se colocan los nombres en mayúsculas y sin tildes para que el join con el mapa no falle
+##Gráficos
+
+# Gráfico rpomedio de años de escolaridad para el APRUEBO:
+
+#1.Mujeres
 
 ```{r}
-head(df_final$comuna)
+  ggplot(
+    m_escolaridad_promedio, 
+    aes(
+      x = escolaridad_promedio_mujeres_18_mas,
+      y = porc_apruebo_2022
+    )
+  ) +
+  geom_point(color = "#8B1C62", size = 2, alpha = 0.7) +
+    geom_smooth(method = "lm") +
+  geom_text(
+    data = m_escolaridad_promedio %>% 
+      filter(
+        porc_apruebo_2022 < 24  &
+          escolaridad_promedio_mujeres_18_mas > 14
+      ),
+    aes(label = comuna),
+    size = 2.5,
+    color = "black",
+    check_overlap = TRUE,
+    nudge_y = 0.01
+  ) +
+    scale_y_continuous(limits = c(0, 100)) +
+  labs(
+    title = "Escolaridad promedio de mujeres (18+) y apoyo al Apruebo 2022",
+    x = "Años de escolaridad promedio mujeres 18+",
+    y = "Porcentaje Apruebo 2022"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 13, face = "bold"),
+    axis.title = element_text(size = 11)
+  )
 ```
 
-# Preparar mapa desde chilemapas
+#2.Hombres
 
 ```{r}
-mapa <- mapa_comunas |> 
-  st_drop_geometry() |> 
-  clean_names()
 
-colnames(mapa_comunas)
-colnames(df_final)
+  ggplot(
+    m_escolaridad_promedio, 
+    aes(
+      x = escolaridad_promedio_hombres_18_mas,
+      y = porc_apruebo_2022
+    )
+  ) +
+    geom_point(color = "turquoise4", size = 2, alpha = 0.7) +
+    geom_smooth(method = "lm") +
+    geom_text(
+      data = m_escolaridad_promedio %>% 
+        filter(
+          porc_apruebo_2022 < 25 &
+            escolaridad_promedio_mujeres_18_mas > 14
+        ),
+      aes(label = comuna),
+      size = 2.5,
+      color = "black",
+      check_overlap = TRUE,
+      nudge_y = 0.01
+    ) +
+    scale_y_continuous(limits = c(0, 100)) +
+    labs(
+      title = "Escolaridad promedio de hombres (18+) y apoyo al apruebo 2022",
+      x = "Años de escolaridad promedio hombres 18+",
+      y = "Porcentaje Apruebo 2022"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 13, face = "bold"),
+      axis.title = element_text(size = 11)
+    )  
+```
 
-mapa_sf <- mapa_comunas |> 
-  mutate(nombre_comuna = str_to_upper(stringi::stri_trans_general(nombre, "latin-ascii"))) |>
-  left_join(df_final, by = "comuna")
+#2 Años de escolaridad y porcentaje de votod a favor
+
+#1.Mujer
+
+```{r}
+ggplot(
+    df_final, 
+    aes(
+      x = escolaridad_promedio_mujeres_18_mas,
+      y = porc_afavor_2023
+    )
+  ) +
+  geom_point(color = "#8B1C62", size = 2, alpha = 0.7) +
+    geom_smooth(method = "lm") +
+  geom_text(
+    data = df_final %>% 
+      filter(
+        porc_afavor_2023 > 65 &
+          escolaridad_promedio_mujeres_18_mas > 14
+      ),
+    aes(label = comuna),
+    size = 2.5,
+    color = "black",
+    check_overlap = TRUE,
+    nudge_y = 0.01
+  ) +
+    scale_y_continuous(limits = c(0, 100)) +
+  labs(
+    title = "Escolaridad promedio de mujeres (18+) y apoyo al Afavor 2023",
+    x = "Años de escolaridad promedio mujeres 18+",
+    y = "Porcentaje Afavor 2023"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 13, face = "bold"),
+    axis.title = element_text(size = 11)
+  )
+```
+
+#2.Hombres
+
+```{r}
+
+  ggplot(
+    df_final, 
+    aes(
+      x = escolaridad_promedio_hombres_18_mas,
+      y = porc_afavor_2023
+    )
+  ) +
+    geom_point(color = "turquoise4", size = 2, alpha = 0.7) +
+    geom_smooth(method = "lm") +
+    geom_text(
+      data = df_final%>% 
+        filter(
+          porc_afavor_2023 > 50 &
+            escolaridad_promedio_hombres_18_mas > 15
+        ),
+      aes(label = comuna),
+      size = 2.5,
+      color = "black",
+      check_overlap = TRUE,
+      nudge_y = 0.01
+    ) +
+    scale_y_continuous(limits = c(0, 100)) +
+    labs(
+      title = "Escolaridad promedio de hombres (18+) y apoyo al Afavor 2023",
+      x = "Años de escolaridad promedio hombres 18+",
+      y = "Porcentaje Afavor 2023"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 13, face = "bold"),
+      axis.title = element_text(size = 11)
+    )  
+```
+
+```{r}
+#Correlación
+
+cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023, use = "complete.obs", method = "pearson")
 
 ```
 
+#es significativa porque es menor a o.5
+
+```{r}
+cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023, use = "complete.obs", method = "pearson") 
+
+#esto entrega un valor p, el cual es menor a 0.5
+```
+
+#3 porcentaje de pobreza y porcentaje de votos
+
+#APRUEBO 2022
+
+```{r}
+  ggplot(
+    m_escolaridad_promedio, 
+    aes(
+      x = porcentaje_de_personas_en_situacion_de_pobreza_por_ingresos_2022,
+      y = porc_apruebo_2022
+    )
+  ) +
+    
+    # Puntos
+    geom_point(color = "#FF8C00", size = 2, alpha = 0.7) +
+    geom_smooth(method = "lm") +
+    geom_text(
+      data = m_escolaridad_promedio %>%
+        filter(
+            porc_apruebo_2022 < 23 &
+            porcentaje_de_personas_en_situacion_de_pobreza_por_ingresos_2022 < 0.05
+        ),
+      aes(label = comuna),
+      size = 2.5,
+      color = "black",
+      check_overlap = TRUE,
+      nudge_y = 0.01
+    ) +
+    scale_y_continuous(limits = c(0, 100)) +
+    labs(
+      title = "Pobreza",
+      x = "Porcentaje de pobreza",
+      y = "Porcentaje Apruebo 2022"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 13, face = "bold"),
+      axis.title = element_text(size = 11)
+    )
+```
+
+# AFAVOR 2023
+
+```{r}
+  ggplot(
+    m_escolaridad_promedio, 
+    aes(
+      x = porcentaje_de_personas_en_situacion_de_pobreza_por_ingresos_2022,
+      y = porc_afavor_2023
+    )
+  ) +
+    
+    # Puntos
+    geom_point(color = "#CD5B45", size = 2, alpha = 0.7) +
+    geom_smooth(method = "lm") +
+    geom_text(
+      data = m_escolaridad_promedio %>%
+        filter(
+            porc_afavor_2023 > 60 &
+            porcentaje_de_personas_en_situacion_de_pobreza_por_ingresos_2022 < 0.05
+        ),
+      aes(label = comuna),
+      size = 2.5,
+      color = "black",
+      check_overlap = TRUE,
+      nudge_y = 0.01
+    ) +
+    scale_y_continuous(limits = c(0, 100)) +
+    labs(
+      title = "Pobreza",
+      x = "Porcentaje de pobreza",
+      y = "Porcentaje Afavor 2023"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 13, face = "bold"),
+      axis.title = element_text(size = 11)
+    )
+```
+
+#3. porcentaje de mujeres u hombres en la población: AFAVOR
+
+arreglar porcentaje
+#Mujeres
+
+```{r}
+#1.Mujer
+
+ggplot(
+    df_final, 
+    aes(
+      x = porcentaje_mujeres,
+      y = porc_afavor_2023
+    )
+  ) +
+  geom_point(color = "#8B1C62", size = 2, alpha = 0.7) +
+    geom_smooth(method = "lm") +
+  geom_text(
+    data = df_final %>% 
+      filter(
+        porc_afavor_2023 > 65 &
+          porcentaje_mujeres > 14
+      ),
+    aes(label = comuna),
+    size = 2.5,
+    color = "black",
+    check_overlap = TRUE,
+    nudge_y = 0.01
+  ) +
+    scale_y_continuous(limits = c(0, 100)) +
+  labs(
+    title = "porcentaje de mujeres y apoyo al Afavor 2023",
+    x = "porcentaje de mujeres",
+    y = "Porcentaje Afavor 2023"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 13, face = "bold"),
+    axis.title = element_text(size = 11)
+  )
+```
+
+No se ve tanto sentido con lo que se vota a favor,
+
+```{r}
+#Correlación
+
+cor.test(df_final$porcentaje_mujeres, df_final$porc_afavor_2023, use = "complete.obs", method = "pearson")
+
+```
+
+![](images/clipboard-3147672180.png)
+
+Se descubre que no hay relación alguna
+
+#2.Hombres
+
+```{r}
+
+  ggplot(
+    df_final, 
+    aes(
+      x = porcentaje_hombres,
+      y = porc_afavor_2023
+    )
+  ) +
+    geom_point(color = "turquoise4", size = 2, alpha = 0.7) +
+    geom_smooth(method = "lm") +
+    geom_text(
+      data = df_final%>% 
+        filter(
+          porc_afavor_2023 > 70 &
+            porcentaje_hombres < 60
+        ),
+      aes(label = comuna),
+      size = 2.5,
+      color = "black",
+      check_overlap = TRUE,
+      nudge_y = 0.01
+    ) +
+    scale_y_continuous(limits = c(0, 100)) +
+    labs(
+      title = "porcentaje de hombres y apoyo al Afavor 2023",
+      x = "porcentaje de hombres",
+      y = "Porcentaje Afavor 2023"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 13, face = "bold"),
+      axis.title = element_text(size = 11)
+    )  
+```
+
+#4.porcentaje de mujeres u hombres en la población: APRUEBO
+
+#Mujeres
+
+```{r}
+
+ggplot(
+    df_final, 
+    aes(
+      x = porcentaje_mujeres,
+      y = porc_apruebo_2022
+    )
+  ) +
+  geom_point(color = "#8B1C62", size = 2, alpha = 0.7) +
+    geom_smooth(method = "lm") +
+  geom_text(
+    data = df_final %>% 
+      filter(
+        porc_apruebo_2022 < 15 &
+          porcentaje_mujeres > 45
+      ),
+    aes(label = comuna),
+    size = 2.5,
+    color = "black",
+    check_overlap = TRUE,
+    nudge_y = 0.01
+  ) +
+    scale_y_continuous(limits = c(0, 100)) +
+  labs(
+    title = "porcentaje de mujeres y apoyo al Apruebo 2022",
+    x = "porcentaje de mujeres",
+    y = "Porcentaje Apruebo 2022"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 13, face = "bold"),
+    axis.title = element_text(size = 11)
+  )
+
+```
+
+#2.Hombres
+
+```{r}
+
+  ggplot(
+    df_final, 
+    aes(
+      x = porcentaje_hombres,
+      y = porc_apruebo_2022
+    )
+  ) +
+    geom_point(color = "turquoise4", size = 2, alpha = 0.7) +
+    geom_smooth(method = "lm") +
+    geom_text(
+      data = df_final%>% 
+        filter(
+          porc_apruebo_2022 < 16 &
+            porcentaje_hombres < 60
+        ),
+      aes(label = comuna),
+      size = 2.5,
+      color = "black",
+      check_overlap = TRUE,
+      nudge_y = 0.01
+    ) +
+    scale_y_continuous(limits = c(0, 100)) +
+    labs(
+      title = "porcentaje de hombres y apoyo al Apruebo 2022",
+      x = "porcentaje de hombres",
+      y = "Porcentaje Apruebo 2022"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 13, face = "bold"),
+      axis.title = element_text(size = 11)
+    )  
+```
+
+
+#5.
