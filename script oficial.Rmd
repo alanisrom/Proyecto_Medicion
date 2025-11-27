@@ -343,3 +343,30 @@ summary(modelo_2022)
 summary(modelo_2023)
 
 ```
+
+# Códigos para gráficar mapa
+
+```{r}
+cut_data <- read_xls("input/CUT_2018_v04.xls") |> 
+  clean_names() |> 
+  select(codigo_comuna_2018, nombre_comuna) |> 
+  rename(comuna = nombre_comuna) |> 
+  mutate(comuna = stri_trans_general(comuna, "Latin-ASCII")) |> 
+  mutate(
+    comuna = case_when(
+      comuna == "Paiguano" ~ "Paihuano",
+      comuna == "Llay-Llay" ~ "Llay Llay",
+      comuna == "Marchigue" ~ "Marchihue",
+      comuna == "Cabo de Hornos" ~ "Cabo de Hornos(Ex-Navarino)",
+      comuna == "San Pedro de La paz" ~ "San Pedro de la paz",
+      comuna == "San Juan de La Costa" ~ "San Juan de la Costa",
+      comuna == "O'higgins" ~ "O'Higgins",
+      comuna == "Treguaco" ~ "Trehuaco",
+      TRUE ~ comuna
+    )
+  )
+  
+df_final <- df_final |> 
+  left_join(cut_data, by = "comuna")
+```
+
