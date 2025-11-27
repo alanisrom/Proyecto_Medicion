@@ -620,7 +620,7 @@ cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023
       check_overlap = TRUE,
       nudge_y = 0.01
     ) +
-    scale_y_continuous(limits = c(0, 100)) +
+    scale_y_continuous(limits = c(0, 100)) + 
     labs(
       title = "Pobreza",
       x = "Porcentaje de pobreza",
