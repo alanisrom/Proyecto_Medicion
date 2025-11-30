@@ -16,6 +16,8 @@ library(readxl)
 library(janitor)
 library(dplyr)
 library(stringi)
+library(dplyr)
+library(ggplot2)
 ```
 
 # Código para limpiar base 1: Elecciones
@@ -806,4 +808,9 @@ ggplot(
 ```
 
 
-#5.
+#5.gráfico "Distribución del apoyo al apruebo 2022 agrupando número de municipios según bloque ideológico al que pertenece el alcalde por comunas"
+
+```{r}
+
+```
+
