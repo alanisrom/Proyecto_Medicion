@@ -808,7 +808,7 @@ ggplot(
 ```
 
 
-#5.gráfico "Distribución del apoyo al apruebo 2022 agrupando número de municipios según bloque ideológico al que pertenece el alcalde según comunas"
+#5.gráfico "Distribución del apoyo al apruebo 2022 agrupando número de municipios según bloque ideológico al que pertenece el alcalde"
 
 ```{r}
 
