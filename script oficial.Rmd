@@ -831,7 +831,7 @@ ggplot(
 ```
 
 
-#6 
+#
 
 gráficos de RM
 
