@@ -39,25 +39,30 @@ El trabajo con las bases de datos se nos dio de forma muy fácil, solo que al se
 
 ## Resultados
 
-<img width="450" height="300" alt="promedio_escolaridad_mujeres_apruebo" src="https://github.com/user-attachments/assets/4448a90f-9604-491e-a797-87a02db1a996" />
-<img width="450" height="300" alt="promedio_escolaridad_mujeres_AFAVOR" src="https://github.com/user-attachments/assets/9357e979-2f6f-4861-82c5-49e20292114f" />
+Gráfico 1: Escolaridad promedio de mujeres en plebiscito 2022 resultado Apruebo 
 
+Descripción:
+Presenta una tendencia positica, en la cual las comunas con mayor porcentaje de escolaridad femenina tienden a mostrar un mayor porcentaje de votos por el apruebo. Además se hay  una dispersión moderada, por lo que la escolaridad influye, pero no explica el resultado.
+En relación a los outliers, existe una alta escolaridad promedio femeninaa, pero se presenta un bajo apoyo al apruebo.
 
-<img width="450" height="300" alt="promedio_escolaridad_hombres_apruebo" src="https://github.com/user-attachments/assets/5c2929ec-7ea0-44f1-b8ea-9fd87f4688ca" />
-<img width="450" height="300" alt="promedio_escolaridad_hombre_AFAVOR" src="https://github.com/user-attachments/assets/b88b7e4a-2549-4ef7-90fb-84bbc9915cab" />
+Gráfico 2:  Escolaridad promedio de hombres en plebiscito 2022 resultado Apruebo 
 
+Descripción:
 
-<img width="450" height="300" alt="Pobreza_Apruebo" src="https://github.com/user-attachments/assets/379411ae-eebc-49fe-8b61-834d02187876" />
-<img width="319" height="272" alt="Pobreza_AFAVOR" src="https://github.com/user-attachments/assets/73811b88-e4c9-47b7-8ba0-1710d45fe043" />
+Presenta una tendencia positica, en la cual las comunas con mayor porcentaje de escolaridad masculina tienden a mostrar un mayor porcentaje de votos por el apruebo. 
+En relación a los outliers, el efecto del nivel educacional sobre el voto se desvanece o invierte.
 
+Gráfico 3: Escolaridad promedio de mujeres en plebiscito 2023 resultado A favor
 
+Descripción:
+Presenta una relación negativa, la cual muestra que el apoyo a favor disminuye conforme aumenta la escolaridad promedio de las mujeres.
+En relación a los outliers, hay altos niveles de escolaridad promedio pero muy bajo apoyo a favor.
 
-<img width="450" height="300" alt="porcentaje_hombre_apruebo" src="https://github.com/user-attachments/assets/69a2c7b1-79de-41ba-8fca-89b70a06f900" />
-<img width="450" height="300" alt="porcentaje_hombre_AFAVOR" src="https://github.com/user-attachments/assets/887eda17-6880-4bb6-93f3-30503fbd9af1" />
+Gráfico 4: Escolaridad promedio de hombres en plebiscito 2023 resultado a favor
 
-
-<img width="450" height="300" alt="porcentaje_mujeres_apruebo" src="https://github.com/user-attachments/assets/a79a562a-c493-4395-ae22-5683ddb11d8e" />
-<img width="450" height="300" alt="Procentaje_mujeres_AFAVOR" src="https://github.com/user-attachments/assets/6e279fec-8bdc-4874-afad-275bb2138731" />
+Descripción: 
+Presenta una relación negativa, la cual muestra que el apoyo a favor disminuye conforme aumenta la escolaridad promedio de los hombres.
+En relación a los outliers, refuerzan la tendencia negativa, a diferencia de lo ocurrido en 2022, donde tendían a invertirla para el Apruebo.
 
 
 Realizamos 2 modelos de regresión:
