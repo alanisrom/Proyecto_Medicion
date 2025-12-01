@@ -1092,4 +1092,5 @@ por comuna (SERVEL, 2023).\nRegión Metropolitana.",
 
 ```
 
+#Gráfico
 
