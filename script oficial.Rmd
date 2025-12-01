@@ -353,9 +353,10 @@ library(janitor)
 library(gganimate)
 library(plotly)
 library(ggplot2)
+library(sf)
 ```
 
-# Unimos bases para tener códigos
+# Unimos bases para tener códigos y generamos la variable de porcentajes
 
 ```{r}
 cut_data <- read_xls("input/CUT_2018_v04.xls") |> 
@@ -380,19 +381,33 @@ cut_data <- read_xls("input/CUT_2018_v04.xls") |>
 df_final <- df_final |> 
   left_join(cut_data, by = "comuna")
 
+#Agregamos ciertas variables para futuras gráficas
+
+df_final <- df_final |> 
+  rowwise() |> 
+  mutate(porc_apruebo_2022 = apruebo/(apruebo+rechazo),
+         porc_afavor_2023 = a_favor/(a_favor+en_contra))
+
+df_final <- df_final |> 
+  rowwise() |> 
+  mutate(ed_superior_porc = superior / poblacion_censada.y)
+
 
 summary(df_final)
+
+summary(df_final$porc_apruebo_2022)
+summary(df_final$porc_afavor_2023)
 ```
 
 ##Gráficos
 
-# Gráfico rpomedio de años de escolaridad para el APRUEBO:
+# Gráfico promedio de años de escolaridad para el APRUEBO:
 
 #1.Mujeres
 
 ```{r}
   ggplot(
-    m_escolaridad_promedio, 
+    df_final, 
     aes(
       x = escolaridad_promedio_mujeres_18_mas,
       y = porc_apruebo_2022
@@ -401,9 +416,9 @@ summary(df_final)
   geom_point(color = "#8B1C62", size = 2, alpha = 0.7) +
     geom_smooth(method = "lm") +
   geom_text(
-    data = m_escolaridad_promedio %>% 
+    data = df_final %>% 
       filter(
-        porc_apruebo_2022 < 24  &
+        porc_apruebo_2022 < 0.25  &
           escolaridad_promedio_mujeres_18_mas > 14
       ),
     aes(label = comuna),
@@ -412,11 +427,12 @@ summary(df_final)
     check_overlap = TRUE,
     nudge_y = 0.01
   ) +
-    scale_y_continuous(limits = c(0, 100)) +
+    scale_y_continuous(limits = c(0, 0.9)) +
   labs(
     title = "Escolaridad promedio de mujeres (18+) y apoyo al Apruebo 2022",
     x = "Años de escolaridad promedio mujeres 18+",
-    y = "Porcentaje Apruebo 2022"
+    y = "Porcentaje Apruebo 2022",
+    caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
   ) +
   theme_minimal() +
   theme(
@@ -430,7 +446,7 @@ summary(df_final)
 ```{r}
 
   ggplot(
-    m_escolaridad_promedio, 
+    df_final, 
     aes(
       x = escolaridad_promedio_hombres_18_mas,
       y = porc_apruebo_2022
@@ -439,10 +455,10 @@ summary(df_final)
     geom_point(color = "turquoise4", size = 2, alpha = 0.7) +
     geom_smooth(method = "lm") +
     geom_text(
-      data = m_escolaridad_promedio %>% 
+      data = df_final %>% 
         filter(
-          porc_apruebo_2022 < 25 &
-            escolaridad_promedio_mujeres_18_mas > 14
+          porc_apruebo_2022 < 0.25 &
+            escolaridad_promedio_mujeres_18_mas > 14.0
         ),
       aes(label = comuna),
       size = 2.5,
@@ -450,11 +466,12 @@ summary(df_final)
       check_overlap = TRUE,
       nudge_y = 0.01
     ) +
-    scale_y_continuous(limits = c(0, 100)) +
-    labs(
+    scale_y_continuous(limits = c(0, 0.9)) +
+    labs( 
       title = "Escolaridad promedio de hombres (18+) y apoyo al apruebo 2022",
       x = "Años de escolaridad promedio hombres 18+",
-      y = "Porcentaje Apruebo 2022"
+      y = "Porcentaje Apruebo 2022",
+      caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
     ) +
     theme_minimal() +
     theme(
@@ -463,7 +480,7 @@ summary(df_final)
     )  
 ```
 
-#2 Años de escolaridad y porcentaje de votod a favor
+#2 Años de escolaridad y porcentaje de votos a favor
 
 #1.Mujer
 
@@ -480,7 +497,7 @@ ggplot(
   geom_text(
     data = df_final %>% 
       filter(
-        porc_afavor_2023 > 65 &
+        porc_afavor_2023 > 0.60 &
           escolaridad_promedio_mujeres_18_mas > 14
       ),
     aes(label = comuna),
@@ -489,11 +506,12 @@ ggplot(
     check_overlap = TRUE,
     nudge_y = 0.01
   ) +
-    scale_y_continuous(limits = c(0, 100)) +
+    scale_y_continuous(limits = c(0, 0.9)) +
   labs(
-    title = "Escolaridad promedio de mujeres (18+) y apoyo al Afavor 2023",
+    title = "Escolaridad promedio de mujeres (18+) y apoyo al A favor 2023",
     x = "Años de escolaridad promedio mujeres 18+",
-    y = "Porcentaje Afavor 2023"
+    y = "Porcentaje A favor 2023",
+    caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
   ) +
   theme_minimal() +
   theme(
@@ -518,7 +536,7 @@ ggplot(
     geom_text(
       data = df_final%>% 
         filter(
-          porc_afavor_2023 > 50 &
+          porc_afavor_2023 > 0.6 &
             escolaridad_promedio_hombres_18_mas > 15
         ),
       aes(label = comuna),
@@ -527,11 +545,12 @@ ggplot(
       check_overlap = TRUE,
       nudge_y = 0.01
     ) +
-    scale_y_continuous(limits = c(0, 100)) +
+    scale_y_continuous(limits = c(0, 0.9)) +
     labs(
-      title = "Escolaridad promedio de hombres (18+) y apoyo al Afavor 2023",
+      title = "Escolaridad promedio de hombres (18+) y apoyo al A favor 2023",
       x = "Años de escolaridad promedio hombres 18+",
-      y = "Porcentaje Afavor 2023"
+      y = "Porcentaje A favor 2023",
+      caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
     ) +
     theme_minimal() +
     theme(
@@ -547,7 +566,6 @@ cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023
 
 ```
 
-#es significativa porque es menor a o.5
 
 ```{r}
 cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023, use = "complete.obs", method = "pearson") 
@@ -561,7 +579,7 @@ cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023
 
 ```{r}
   ggplot(
-    m_escolaridad_promedio, 
+    df_final, 
     aes(
       x = porcentaje_de_personas_en_situacion_de_pobreza_por_ingresos_2022,
       y = porc_apruebo_2022
@@ -572,10 +590,10 @@ cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023
     geom_point(color = "#FF8C00", size = 2, alpha = 0.7) +
     geom_smooth(method = "lm") +
     geom_text(
-      data = m_escolaridad_promedio %>%
+      data = df_final %>%
         filter(
-            porc_apruebo_2022 < 23 &
-            porcentaje_de_personas_en_situacion_de_pobreza_por_ingresos_2022 < 0.05
+            porc_apruebo_2022 < 0.25 &
+            porcentaje_de_personas_en_situacion_de_pobreza_por_ingresos_2022 < 0.02
         ),
       aes(label = comuna),
       size = 2.5,
@@ -583,11 +601,12 @@ cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023
       check_overlap = TRUE,
       nudge_y = 0.01
     ) +
-    scale_y_continuous(limits = c(0, 100)) +
+    scale_y_continuous(limits = c(0, 0.9)) +
     labs(
-      title = "Pobreza",
+      title = "Porcentaje de pobreza comunal y apoyo al Apruebo 2022",
       x = "Porcentaje de pobreza",
-      y = "Porcentaje Apruebo 2022"
+      y = "Porcentaje Apruebo 2022",
+      caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
     ) +
     theme_minimal() +
     theme(
@@ -600,7 +619,7 @@ cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023
 
 ```{r}
   ggplot(
-    m_escolaridad_promedio, 
+    df_final, 
     aes(
       x = porcentaje_de_personas_en_situacion_de_pobreza_por_ingresos_2022,
       y = porc_afavor_2023
@@ -611,10 +630,10 @@ cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023
     geom_point(color = "#CD5B45", size = 2, alpha = 0.7) +
     geom_smooth(method = "lm") +
     geom_text(
-      data = m_escolaridad_promedio %>%
+      data = df_final %>%
         filter(
-            porc_afavor_2023 > 60 &
-            porcentaje_de_personas_en_situacion_de_pobreza_por_ingresos_2022 < 0.05
+            porc_afavor_2023 > 0.6 &
+            porcentaje_de_personas_en_situacion_de_pobreza_por_ingresos_2022 < 0.02
         ),
       aes(label = comuna),
       size = 2.5,
@@ -622,11 +641,12 @@ cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023
       check_overlap = TRUE,
       nudge_y = 0.01
     ) +
-    scale_y_continuous(limits = c(0, 100)) + 
+    scale_y_continuous(limits = c(0, 0.9)) + 
     labs(
-      title = "Pobreza",
+      title = "Porcentaje de pobreza comunal y apoyo al A favor 2022",
       x = "Porcentaje de pobreza",
-      y = "Porcentaje Afavor 2023"
+      y = "Porcentaje A favor 2023",
+      caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
     ) +
     theme_minimal() +
     theme(
@@ -637,7 +657,6 @@ cor.test(df_final$escolaridad_promedio_mujeres_18_mas, df_final$porc_afavor_2023
 
 #3. porcentaje de mujeres u hombres en la población: AFAVOR
 
-arreglar porcentaje
 #Mujeres
 
 ```{r}
@@ -655,8 +674,8 @@ ggplot(
   geom_text(
     data = df_final %>% 
       filter(
-        porc_afavor_2023 > 65 &
-          porcentaje_mujeres > 14
+        porc_afavor_2023 > 0.79 &
+          porcentaje_mujeres > 45 
       ),
     aes(label = comuna),
     size = 2.5,
@@ -664,11 +683,12 @@ ggplot(
     check_overlap = TRUE,
     nudge_y = 0.01
   ) +
-    scale_y_continuous(limits = c(0, 100)) +
+    scale_y_continuous(limits = c(0, 0.9)) +
   labs(
-    title = "porcentaje de mujeres y apoyo al Afavor 2023",
-    x = "porcentaje de mujeres",
-    y = "Porcentaje Afavor 2023"
+    title = "porcentaje de mujeres comunal y apoyo al A favor 2023",
+    x = "porcentaje de mujeres que viven en la comuna",
+    y = "Porcentaje A favor 2023",
+    caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
   ) +
   theme_minimal() +
   theme(
@@ -706,8 +726,8 @@ Se descubre que no hay relación alguna
     geom_text(
       data = df_final%>% 
         filter(
-          porc_afavor_2023 > 70 &
-            porcentaje_hombres < 60
+          porc_afavor_2023 > 0.75 &
+            porcentaje_hombres < 55
         ),
       aes(label = comuna),
       size = 2.5,
@@ -715,11 +735,12 @@ Se descubre que no hay relación alguna
       check_overlap = TRUE,
       nudge_y = 0.01
     ) +
-    scale_y_continuous(limits = c(0, 100)) +
+    scale_y_continuous(limits = c(0, 0.9)) +
     labs(
-      title = "porcentaje de hombres y apoyo al Afavor 2023",
-      x = "porcentaje de hombres",
-      y = "Porcentaje Afavor 2023"
+      title = "porcentaje de hombres comunal y apoyo al A favor 2023",
+      x = "porcentaje de hombres que viven en la comuna",
+      y = "Porcentaje A favor 2023",
+      caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
     ) +
     theme_minimal() +
     theme(
@@ -746,7 +767,7 @@ ggplot(
   geom_text(
     data = df_final %>% 
       filter(
-        porc_apruebo_2022 < 15 &
+        porc_apruebo_2022 < 0.10 &
           porcentaje_mujeres > 45
       ),
     aes(label = comuna),
@@ -755,11 +776,12 @@ ggplot(
     check_overlap = TRUE,
     nudge_y = 0.01
   ) +
-    scale_y_continuous(limits = c(0, 100)) +
+    scale_y_continuous(limits = c(0, 0.9)) +
   labs(
-    title = "porcentaje de mujeres y apoyo al Apruebo 2022",
-    x = "porcentaje de mujeres",
-    y = "Porcentaje Apruebo 2022"
+    title = "Porcentaje de mujeres comunal y apoyo al Apruebo 2022",
+    x = "porcentaje de mujeres que viven en la comuna",
+    y = "Porcentaje Apruebo 2022",
+    caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
   ) +
   theme_minimal() +
   theme(
@@ -785,7 +807,7 @@ ggplot(
     geom_text(
       data = df_final%>% 
         filter(
-          porc_apruebo_2022 < 16 &
+          porc_apruebo_2022 < 0.10 &
             porcentaje_hombres < 60
         ),
       aes(label = comuna),
@@ -794,11 +816,12 @@ ggplot(
       check_overlap = TRUE,
       nudge_y = 0.01
     ) +
-    scale_y_continuous(limits = c(0, 100)) +
+    scale_y_continuous(limits = c(0, 0.9)) +
     labs(
-      title = "porcentaje de hombres y apoyo al Apruebo 2022",
-      x = "porcentaje de hombres",
-      y = "Porcentaje Apruebo 2022"
+      title = "Porcentaje de hombres comunal y apoyo al Apruebo 2022",
+      x = "Porcentaje de hombres que viven en la comuna",
+      y = "Porcentaje Apruebo 2022",
+      caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
     ) +
     theme_minimal() +
     theme(
@@ -812,5 +835,262 @@ ggplot(
 
 ```{r}
 
+#APRUEBO 2022
+
+summary(df_final$porc_apruebo_2022)
+# Crear la variable categórica (muy bajo, bejo, medio y alto) basada en los cuartiles
+
+df_final$porc_apruebo_categorias <- cut(
+  df_final$porc_apruebo_2022,
+  breaks = c(-Inf, 0.24767, 0.32358, 0.39203, Inf),
+  labels = c("Muy Bajo", "Bajo", "Medio", "Alto"),
+  include.lowest = TRUE,
+  right = TRUE
+)
+
+df_grafico11 <- df_final |> 
+  group_by(tendencia, porc_apruebo_categorias) |> 
+  summarise(conteo_comuna = n(), .groups = "drop")
+
+#Arovechamos hacerlo también con la variable para A favor
+
+summary(df_final$porc_afavor_2023)
+
+df_final$porc_afavor_categorias <- cut(
+  df_final$porc_afavor_2023,
+  breaks = c(-Inf, 0.4090, 0.4700, 0.5362, Inf),
+  labels = c("Muy Bajo", "Bajo", "Medio", "Alto"),
+  include.lowest = TRUE,
+  right = TRUE
+)
+df_grafico12 <- df_final |> 
+  group_by(tendencia, porc_afavor_categorias) |> 
+  summarise(conteo_comuna = n(), .groups = "drop")
+
+#Grafico para el apruebo
+
+df_grafico5 %>%
+  ggplot(aes(x = porc_apruebo_categorias, y = conteo_comuna)) +
+  geom_col(fill = "#f4a6c6", color = "gray20") +
+  geom_text(
+    aes(label = conteo_comuna),
+    vjust = -0.3,
+    size = 4,
+    fontface = "bold",
+    color = "black"
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.5))) +
+  labs(
+    title = "Distribución del apoyo al Apruebo 2022",
+    subtitle = "Número de municipios según la tendencia política del alcalde",
+    x = "Porcentaje de Apruebo (Clasificado por Cuartiles)",
+    y = "Cantidad de Municipios",
+    caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
+  ) +
+  facet_grid(rows = vars(tendencia)) +
+  theme_minimal(base_size = 12)
+
+#gráfico para el A favor
+
+df_grafico12 %>%
+  ggplot(aes(x = porc_afavor_categorias, y = conteo_comuna)) +
+  geom_col(fill = "#f4a6c6", color = "gray20") +
+  geom_text(
+    aes(label = conteo_comuna),
+    vjust = -0.3,
+    size = 4,
+    fontface = "bold",
+    color = "black"
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.5))) +
+  labs(
+    title = "Distribución del apoyo al A favor 2023",
+    subtitle = "Número de municipios según la tendencia política del alcalde",
+    x = "Porcentaje de Apruebo (Clasificado por Cuartiles)",
+    y = "Cantidad de Municipios",
+    caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
+  ) +
+  facet_grid(rows = vars(tendencia)) +
+  theme_minimal(base_size = 12)
+
 ```
+
+
+# 6. Gráficos Porcentaje apruebo y porcentaje de población con educación superior
+
+#apruebo: gráfico 13
+
+```{r}
+ggplot(
+  df_final, 
+  aes(
+    x = ed_superior_porc,
+    y = porc_apruebo_2022
+  )
+) +
+  geom_point(color = "#457b9d", size = 2, alpha = 0.7) +
+  geom_smooth(method = "lm", 
+              color = "#e63946") +
+  geom_text(
+    data = df_final %>% 
+      filter(
+        porc_apruebo_2022 < 0.24  &
+          ed_superior_porc > 0.5
+      ),
+    aes(label = comuna),
+    size = 2.5,
+    color = "black",
+    check_overlap = TRUE,
+    nudge_y = 0.01
+  ) +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(
+    title = "Votación del Apruebo y educación superior por comuna",
+    subtitle = "Relación entre apoyo al Apruebo y nivel educativo de la población comunal\n(Plebiscito Constitucional 2022)",
+    x = "Porcentaje de población con educación superior (comunas)",
+    y = "Porcentaje de votos para el Apruebo (votos válidos)",
+    caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
+  ) +
+  theme_minimal(base_family = "Roboto") +
+  theme(
+    plot.title = element_text(size = 13, face = "bold"),
+    axis.title = element_text(size = 11)
+  )
+```
+
+#Rechazo: gráfico 14
+
+```{r}
+ggplot(
+  df_final, 
+  aes(
+    x = ed_superior_porc,
+    y = porc_afavor_2023
+  )
+) +
+  geom_point(color = "#00008B", size = 2, alpha = 0.7) +
+  geom_smooth(method = "lm", 
+              color = "#e63946") +
+  geom_text(
+    data = df_final %>% 
+      filter(
+        porc_afavor_2023 > 0.5  &
+          ed_superior_porc > 0.6
+      ),
+    aes(label = comuna),
+    size = 2.5,
+    color = "black",
+    check_overlap = TRUE,
+    nudge_y = 0.01
+  ) +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(
+    title = "Votación del A favor y educación superior por comuna",
+    subtitle = "Relación entre apoyo al A favor y nivel educativo de la población comunal\n(Plebiscito Constitucional 2023)",
+    x = "Porcentaje de población con educación superior (comunas)",
+    y = "Porcentaje de votos para el A favor (votos válidos)",
+    caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
+  ) +
+  theme_minimal(base_family = "Roboto") +
+  theme(
+    plot.title = element_text(size = 13, face = "bold"),
+    axis.title = element_text(size = 11)
+  )
+```
+
+#7 gráfico de mapa RM: 
+
+```{r}
+mapa_chile <- read_sf("data/geometrias/comunas.shp")
+
+colnames(mapa_chile)
+
+# Estandarizo la variable comuna
+
+mapa_chile_limpia <- mapa_chile |> 
+  mutate(Comuna = str_to_lower(Comuna),
+         Comuna = stringi::stri_trans_general(Comuna, "latin-ascii")) |> 
+  filter(codregion == 13)
+
+df_final_limpia <- df_final |> 
+  mutate(comuna = str_to_lower(comuna),
+         comuna = stringi::stri_trans_general(comuna, "latin-ascii"))
+
+# Veo que no haya problemas con las comunas de la RM
+  
+mapa_chile_limpia |> 
+  anti_join(df_final_limpia, by = c("Comuna"="comuna")) |> 
+  select(Comuna)
+
+# Uno las bases de datos
+
+mapa_chile_modelos <- mapa_chile_limpia |> 
+  left_join(df_final_limpia, by = c("Comuna"="comuna"))
+
+mapa_chile_modelos <- mapa_chile_modelos |> 
+  filter(!is.na(Region))
+
+str(mapa_chile_modelos)
+
+# Gráfico de mapa de educación superior: 15
+
+mapa_chile_modelos |> 
+  ggplot() +
+  geom_sf(aes(fill = ed_superior_porc)) +
+  scale_fill_gradient(name = "% educación superior:",
+                      low = "#fcb9b2", high = "#461220") +
+  labs(
+    title = "Educación superior",
+    subtitle = "Porcentaje de personas con educación superior por comuna (Censo 2024).\nRegión Metropolitana.",
+    caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
+  ) +
+  theme_linedraw() +
+  theme(legend.position = "bottom",
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.y = element_blank())
+
+#Gráfico 16: Porcentaje de apruebo
+
+mapa_chile_modelos |> 
+  ggplot() +
+  geom_sf(aes(fill = porc_apruebo_2022)) +
+  scale_fill_gradient(name = "% Apruebo:",
+                      low = "lavenderblush", high = "#8B3A62") +
+  labs(
+    title = "Distribución del apoyo al Apruebo",
+    subtitle = "Porcentaje de votos emitidos para el apruebo en el plebiscito 2022 
+por comuna (SERVEL, 2022).\nRegión Metropolitana.",
+    caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
+  ) +
+  theme_linedraw() +
+  theme(legend.position = "bottom",
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.y = element_blank())
+
+#Gráfico 17: Porcentaje de A favor
+
+mapa_chile_modelos |> 
+  ggplot() +
+  geom_sf(aes(fill = porc_afavor_2023)) +
+  scale_fill_gradient(name = "% A favor:",
+                      low = "lavenderblush", high = "#8B3A62") +
+  labs(
+    title = "Distribución del apoyo al A favor",
+    subtitle = "Porcentaje de votos emitidos para el A favor en el plebiscito 2023 
+por comuna (SERVEL, 2023).\nRegión Metropolitana.",
+    caption = "Fuente: Servicio Electoral de Chile (SERVEL), Resultados electorales históricos.\nInstituto Nacional de Estadísticas (INE), Resultados CENSO 2024.\nElaboración propia."
+  ) +
+  theme_linedraw() +
+  theme(legend.position = "bottom",
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.y = element_blank())
+
+```
+
+#Gráfico
 
