@@ -65,29 +65,4 @@ Presenta una relación negativa, la cual muestra que el apoyo a favor disminuye 
 En relación a los outliers, refuerzan la tendencia negativa, a diferencia de lo ocurrido en 2022, donde tendían a invertirla para el Apruebo.
 
 
-Realizamos 2 modelos de regresión:
 
-Para el Plebiscito 2022:
-
-logit(Pleb_2022(Y=1))=β0​+β1​(escolaridad_mujeres)+β2​(escolaridad_hombres)+β3​(tendencia)+β4​(nivel_pobreza)+β5(grupo_edad)+β
-
-Para el Plebiscito 2023:
-
-logit(Pleb_2023(Y=1))=β0​+β1​(escolaridad_mujeres)+β2​(escolaridad_hombres)+β3​(tendencia)+β4​(nivel_pobreza)+β5(grupo_edad)+β
-
-| Variable                    | Efecto en 2022          | Significancia 2022 | Efecto en 2023          | Significancia 2023      | Interpretación comparada                                                                         |
-| --------------------------- | ----------------------- | ------------------ | ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------ |
-| **Escolaridad hombres 18+** | Negativo                | No significativo   | Negativo                | Marginal (p ≈ 0.07)     | En 2023 comienza a mostrar efecto: más escolaridad masculina → menor apoyo al texto.             |
-| **Escolaridad mujeres 18+** | Positivo                | No significativo   | Positivo                | *Significativo*         | En 2023 influye claramente: mayor escolaridad femenina → mayor apoyo al texto.                   |
-| **Tendencia Independiente** | Positivo                | No significativo   | **Negativo**            | **Significativo**       | Cambia de sentido: en 2023 las comunas con independientes tienden a votar *en contra* del texto. |
-| **Tendencia Izquierda**     | Positivo                | No significativo   | **Negativo**            | *Significativo*         | Cambia de sentido: en 2023 incluso la izquierda muestra tendencia a rechazo.                     |
-| **Pobreza (personas)**      | Positivo (muy pequeño)  | No significativo   | **Positivo fuerte**     | ***Muy significativo*** | En 2023: comunas más pobres apoyan más el texto en promedio.                                     |
-| **Edad (promedio / grupo)** | Negativo                | No significativo   | **Positivo**            | **Significativo**       | En 2023: comunas con mayores grupos etarios → más apoyo al texto.                                |
-| **Intercepto**              | Negativo, significativo | —                  | Negativo, significativo | —                       | El voto por aprobar es bajo en promedio, aun controlando por variables.                          |
-
-En resumen: 
-En el Plebiscito de 2022, ninguna variable socioeconómica ni política tiene efectos significativos en la probabilidad de aprobar por comunas. Pero, en 2023 hay variables que s+i influyen en el A Favor, como mayor escolaridad femenina, menor escolaridad masculina, mayor pobreza comunal, mayor edad promedio y la tendencia política (independientes e izquierda) afectan significativamente el resultado. El cambio de signo en las variables muestran un cambio en el comportamiento electoral. 
-
-# Disclaimers:
-1. La gran mayoría de los códigos de R los sacamos de las mismas clases. El uso de inteligencia artificial fue para ayudarnos a detectar errores en el código, ayuda a interpretar los resultados y para aspectos específicos de cada uno de los codigos.
-2. Recomendaciones para futuras investigaciones: hacer los gráficos exploratorias antes de las regresiones (básicamente tuvimos suerte). 
